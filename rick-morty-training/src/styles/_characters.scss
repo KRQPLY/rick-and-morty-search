@@ -1,0 +1,36 @@
+.container {
+  .section-buttons {
+    display: flex;
+    gap: 80px;
+    &--button {
+      cursor: pointer;
+      &.active {
+        color: $color-java;
+        border-bottom: 2px solid $color-java;
+      }
+    }
+  }
+
+  .table {
+    &--head {
+      display: none;
+    }
+    &--row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      justify-content: space-between;
+    }
+  }
+
+  @include media-sm {
+    .table {
+      &--head {
+        display: block;
+        background: $color-catskill-white;
+      }
+
+      &--row {
+      }
+    }
+  }
+}

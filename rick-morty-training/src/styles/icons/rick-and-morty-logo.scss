@@ -1,0 +1,7 @@
+img {
+  width: 100px;
+
+  @include media-md {
+    width: 240px;
+  }
+}
