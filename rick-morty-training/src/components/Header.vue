@@ -7,19 +7,26 @@
       <div class="search-bar">
         <div class="list">
           <div class="list--label px-5 py-4">Search by</div>
-          <div class="list--select">
+          <div
+            class="list--select"
+            :class="{ disabled: charactersStore.onlyFavorites }"
+          >
             <div class="list--current-option px-5 py-4" @click="toggleList">
-              {{ category }}
-              <div class="arrow-down"></div>
+              {{ charactersStore.searchCategory }}
+              <div
+                class="arrow-down"
+                v-if="!charactersStore.onlyFavorites"
+              ></div>
             </div>
             <div class="list--container" v-if="listVisible">
               <div
                 class="list--item px-5 py-4"
-                v-for="item in listItems"
+                v-for="item in charactersStore.searchCategories"
                 @click="
                   () => {
-                    changeCategory(item);
                     toggleList();
+                    charactersStore.setSearchCategory(item);
+                    charactersStore.updateCharacters();
                   }
                 "
               >
@@ -33,9 +40,17 @@
             type="text"
             placeholder="..."
             class="search-field--input px-5 py-4"
-            v-model="value"
+            v-model="charactersStore.searchValue"
           />
-          <Search class="search-field--button" @click="changeValue(value)" />
+          <SearchIcon
+            class="search-field--button"
+            @click="
+              () => {
+                charactersStore.setSearchValue(charactersStore.searchValue);
+                charactersStore.updateCharacters();
+              }
+            "
+          />
         </div>
       </div>
     </div>
@@ -43,31 +58,20 @@
 </template>
 
 <script setup lang="ts">
-import Search from "@/components/icons/Search.vue";
+import SearchIcon from "@/components/icons/SearchIcon.vue";
 import RickAndMortyLogo from "@/components/icons/RickAndMortyLogo.vue";
 import { ref } from "vue";
 import { RouterLink } from "vue-router";
+import { useCharactersStore } from "@/stores/charactersStore";
 
-defineProps<{
-  listItems: string[];
-  category: string;
-  value: string;
-}>();
-
-const emits = defineEmits(["update:category", "update:value"]);
+const charactersStore = useCharactersStore();
 
 const listVisible = ref(false);
 
 const toggleList = () => {
-  listVisible.value = !listVisible.value;
-};
-
-const changeCategory = (category: string) => {
-  emits("update:category", category);
-};
-
-const changeValue = (value: string) => {
-  emits("update:value", value);
+  if (!charactersStore.onlyFavorites) {
+    listVisible.value = !listVisible.value;
+  }
 };
 </script>
 
