@@ -110,7 +110,7 @@ export const useCharactersStore = defineStore("counter", () => {
   };
   const updateCharactersByFavorites = async (endpoint: string) => {
     if (favoriteIds.value.length) {
-      endpoint = `${endpoint}/${[...favoriteIds.value]}`;
+      endpoint = `${endpoint}/${JSON.stringify(favoriteIds.value)}`;
       let data = await getData(endpoint);
       if (data) {
         if (searchValue.value) {
@@ -120,11 +120,7 @@ export const useCharactersStore = defineStore("counter", () => {
               .includes(searchValue.value.toLowerCase());
           });
         }
-        if (Array.isArray(data)) {
-          setCharacters(data);
-        } else {
-          setCharacters([data]);
-        }
+        setCharacters(data);
         isPaginationActive.value = false;
       } else {
         setCharacters([]);
