@@ -6,31 +6,20 @@
       /></RouterLink>
       <div class="search-bar">
         <div class="list">
-          <div class="list--label px-5 py-4">Search by</div>
-          <div
-            class="list--select"
-            :class="{ disabled: charactersStore.onlyFavorites }"
-          >
-            <div class="list--current-option px-5 py-4" @click="toggleList">
-              {{ charactersStore.searchCategory }}
-              <div
-                class="arrow-down"
-                v-if="!charactersStore.onlyFavorites"
-              ></div>
+          <div class="list__label px-5 py-4">Search by</div>
+          <div class="list__select" :class="{ disabled: isOnlyFavorites }">
+            <div class="list__current-option px-5 py-4" @click="toggleList">
+              {{ searchCategory }}
+              <div class="arrow-down"></div>
             </div>
-            <div class="list--container" v-if="listVisible">
+            <div class="list__container" v-if="isListVisible">
               <div
-                class="list--item px-5 py-4"
-                v-for="item in charactersStore.searchCategories"
-                @click="
-                  () => {
-                    toggleList();
-                    charactersStore.setSearchCategory(item);
-                    charactersStore.updateCharacters();
-                  }
-                "
+                class="list__item px-5 py-4"
+                v-for="(category, index) in searchCategories"
+                @click="changeCategory(category)"
+                :key="index"
               >
-                {{ item }}
+                {{ category }}
               </div>
             </div>
           </div>
@@ -39,18 +28,10 @@
           <input
             type="text"
             placeholder="..."
-            class="search-field--input px-5 py-4"
-            v-model="charactersStore.searchValue"
+            class="search-field__input px-5 py-4"
+            v-model="searchValue"
           />
-          <SearchIcon
-            class="search-field--button"
-            @click="
-              () => {
-                charactersStore.setSearchValue(charactersStore.searchValue);
-                charactersStore.updateCharacters();
-              }
-            "
-          />
+          <SearchIcon class="search-field__button" @click="searchCharacters" />
         </div>
       </div>
     </div>
@@ -60,19 +41,38 @@
 <script setup lang="ts">
 import SearchIcon from "@/components/icons/SearchIcon.vue";
 import RickAndMortyLogo from "@/components/icons/RickAndMortyLogo.vue";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 import { useCharactersStore } from "@/stores/charactersStore";
+import { storeToRefs } from "pinia";
 
 const charactersStore = useCharactersStore();
 
-const listVisible = ref(false);
+const isListVisible = ref(false);
+const { isOnlyFavorites, searchCategory, searchCategories, searchValue } =
+  storeToRefs(charactersStore);
 
 const toggleList = () => {
-  if (!charactersStore.onlyFavorites) {
-    listVisible.value = !listVisible.value;
+  if (!isOnlyFavorites.value) {
+    isListVisible.value = !isListVisible.value;
   }
 };
+
+const changeCategory = (category: string) => {
+  toggleList();
+  charactersStore.setSearchCategory(category);
+};
+
+const searchCharacters = () => {
+  charactersStore.setSearchPage(1);
+  charactersStore.updateCharacters();
+};
+
+watch(isOnlyFavorites, () => {
+  if (isOnlyFavorites.value) {
+    isListVisible.value = false;
+  }
+});
 </script>
 
 <style scoped lang="scss">

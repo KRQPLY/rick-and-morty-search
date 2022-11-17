@@ -1,16 +1,18 @@
 import axios from "axios";
 
 const getData = async (endpoint: string) => {
-  let data = null;
   try {
     let response = await axios.get(endpoint);
 
-    data = await response.data;
+    let data = response.data;
 
     return data;
-  } catch (err: any) {
-    console.error(err.message);
-    return false;
+  } catch (e: unknown) {
+    if (typeof e === "string") {
+      console.error(e.toUpperCase());
+    } else if (e instanceof Error) {
+      console.error(e.message);
+    }
   }
 };
 

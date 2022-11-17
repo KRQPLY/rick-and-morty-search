@@ -1,34 +1,25 @@
 import { ref, watch } from "vue";
 import { defineStore } from "pinia";
 import getData from "@/composables/getData";
-import getLocalStorage from "@/composables/getLocalStorage";
-import updateLocalStorage from "@/composables/updateLocalStorage";
-
-interface Character {
-  image: string;
-  status: string;
-  id: number;
-  name: string;
-  gender: string;
-  species: string;
-  episode: string[];
-  lastEpisode: string;
-}
+import getLocalStorage from "@/utils/getLocalStorage";
+import updateLocalStorage from "@/utils/updateLocalStorage";
+import type Character from "@/types/Character";
 
 export const useCharactersStore = defineStore("counter", () => {
-  const searchCategories = [
+  const searchCategories = ref([
     "Name",
     "Identifier",
     "Episode",
     "SomeLongGermanWord",
-  ];
+  ]);
   const searchValue = ref("");
-  const searchCategory = ref(searchCategories[0]);
+  const searchCategory = ref(searchCategories.value[0]);
   const searchPage = ref(1);
   const charactersNum = ref(1);
   const characters = ref<Character[]>([]);
-  const favoriteIds = ref<number[]>(getLocalStorage("favorite-ids"));
-  const onlyFavorites = ref(false);
+  const favoriteIds = ref<number[]>([]);
+  const isOnlyFavorites = ref(false);
+  const isPaginationActive = ref(true);
   const setSearchValue = (value: string) => {
     searchValue.value = value;
   };
@@ -36,7 +27,10 @@ export const useCharactersStore = defineStore("counter", () => {
     searchCategory.value = category;
   };
   const setOnlyFavorites = (favorites: boolean) => {
-    onlyFavorites.value = favorites;
+    isOnlyFavorites.value = favorites;
+  };
+  const setSearchPage = (page: number) => {
+    searchPage.value = page;
   };
   const addToFavorites = (id: number) => {
     favoriteIds.value.push(id);
@@ -47,8 +41,14 @@ export const useCharactersStore = defineStore("counter", () => {
     favoriteIds.value.splice(index, 1);
     updateLocalStorage("favorite-ids", favoriteIds.value);
   };
-  const idInFavorites = (id: number) => {
+  const isIdInFavorites = (id: number) => {
     return favoriteIds.value.some((favoriteId) => favoriteId === id);
+  };
+  const updateFavoriteIds = () => {
+    const storage = getLocalStorage("favorite-ids");
+    if (storage) {
+      favoriteIds.value = JSON.parse(storage);
+    }
   };
   const setCharacters = (data: Character[]) => {
     characters.value = data;
@@ -58,66 +58,103 @@ export const useCharactersStore = defineStore("counter", () => {
       characters.value[index].lastEpisode = lastEpisode.episode;
     });
   };
-  const updateCharacters = async () => {
-    let endpoint = "https://rickandmortyapi.com/api/character";
-    if (!onlyFavorites.value) {
-      let categoryName = searchCategory.value.toLowerCase();
-      if (categoryName === "episode") {
-        if (searchValue.value) {
-          let episodeEndpoint = `https://rickandmortyapi.com/api/episode/?${categoryName}=${searchValue.value}`;
-          let episodeData = (await getData(episodeEndpoint)).results;
-          let charactersIds: Set<string> = new Set();
-          episodeData.forEach((item: { characters: string[] }) => {
-            item.characters.forEach((character) => {
-              charactersIds.add(
-                character.replace(
-                  "https://rickandmortyapi.com/api/character/",
-                  ""
-                )
-              );
-            });
-          });
-          endpoint = `${endpoint}/${[...charactersIds]}`;
-          let data = await getData(endpoint);
-          setCharacters(data);
-          return;
-        }
-      } else if (categoryName === "name") {
-        endpoint = `${endpoint}?page=${searchPage.value}&${categoryName}=${searchValue.value}`;
-        updateCharactersNum(endpoint);
-      } else if (categoryName === "identifier") {
-        if (Number(searchValue.value))
-          endpoint = `${endpoint}/${searchValue.value}`;
-      }
-      let data = await getData(endpoint);
-      if (!Array.isArray(data.results)) {
-        data.results = [data];
-      }
+  const updateCharactersByName = async (endpoint: string) => {
+    endpoint = `${endpoint}?page=${searchPage.value}&name=${searchValue.value}`;
+    let data = await getData(endpoint);
+    if (data) {
       setCharacters(data.results);
+      updateCharactersNum(endpoint);
+      isPaginationActive.value = true;
     } else {
-      let data: Character[] = [];
-      if (favoriteIds.value.length > 0) {
-        endpoint = `${endpoint}/${favoriteIds.value}`;
-        data = await getData(endpoint);
-        if (!Array.isArray(data)) {
-          data = [data];
+      setCharacters([]);
+    }
+  };
+  const updateCharactersByIdentifier = async (endpoint: string) => {
+    if (Number(searchValue.value)) {
+      endpoint = `${endpoint}/${searchValue.value}`;
+      let data = await getData(endpoint);
+      if (data) {
+        setCharacters([data]);
+        isPaginationActive.value = false;
+      } else {
+        setCharacters([]);
+      }
+    }
+  };
+  const updateCharactersByEpisode = async (endpoint: string) => {
+    if (searchValue.value) {
+      let episodeEndpoint = `https://rickandmortyapi.com/api/episode/?episode=${searchValue.value}`;
+      let episodeData = (await getData(episodeEndpoint)).results;
+      if (episodeData) {
+        let charactersIds: Set<string> = new Set();
+        episodeData.forEach((episode: { characters: string[] }) => {
+          episode.characters.forEach((character) => {
+            charactersIds.add(
+              character.replace(
+                "https://rickandmortyapi.com/api/character/",
+                ""
+              )
+            );
+          });
+        });
+        endpoint = `${endpoint}/${[...charactersIds]}`;
+        let data = await getData(endpoint);
+        if (data) {
+          setCharacters(data);
+          isPaginationActive.value = false;
         }
+      } else {
+        setCharacters([]);
+      }
+    }
+  };
+  const updateCharactersByFavorites = async (endpoint: string) => {
+    if (favoriteIds.value.length) {
+      endpoint = `${endpoint}/${[...favoriteIds.value]}`;
+      let data = await getData(endpoint);
+      if (data) {
         if (searchValue.value) {
-          data = data.filter((item) => {
+          data = data.filter((item: Character) => {
             return item.name
               .toLowerCase()
               .includes(searchValue.value.toLowerCase());
           });
         }
+        if (Array.isArray(data)) {
+          setCharacters(data);
+        } else {
+          setCharacters([data]);
+        }
+        isPaginationActive.value = false;
+      } else {
+        setCharacters([]);
       }
-      setCharacters(data);
+    } else {
+      setCharacters([]);
+    }
+  };
+  const updateCharacters = async () => {
+    let endpoint = "https://rickandmortyapi.com/api/character";
+    if (isOnlyFavorites.value) {
+      updateCharactersByFavorites(endpoint);
+    } else {
+      let categoryName = searchCategory.value.toLowerCase();
+      if (categoryName === "episode") {
+        updateCharactersByEpisode(endpoint);
+      } else if (categoryName === "name") {
+        updateCharactersByName(endpoint);
+      } else if (categoryName === "identifier") {
+        updateCharactersByIdentifier(endpoint);
+      }
     }
   };
   const updateCharactersNum = async (
     endpoint: string = "https://rickandmortyapi.com/api/character"
   ) => {
     let data = await getData(endpoint);
-    charactersNum.value = data.info.count;
+    if (data) {
+      charactersNum.value = data.info.count;
+    }
   };
   watch(searchPage, () => {
     updateCharacters();
@@ -130,15 +167,16 @@ export const useCharactersStore = defineStore("counter", () => {
     searchPage,
     charactersNum,
     characters,
-    favoriteIds,
-    onlyFavorites,
+    isOnlyFavorites,
+    isPaginationActive,
     setSearchValue,
     setSearchCategory,
     setOnlyFavorites,
+    setSearchPage,
     addToFavorites,
     deleteFromFavorites,
-    idInFavorites,
-    setCharacters,
+    isIdInFavorites,
+    updateFavoriteIds,
     updateCharacters,
     updateCharactersNum,
   };

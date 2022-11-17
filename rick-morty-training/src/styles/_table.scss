@@ -2,99 +2,6 @@
   &__head {
     display: none;
   }
-  &__row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-areas:
-      "image name species favorites"
-      "image id gender last-episode";
-
-    &--border {
-      border-bottom: 1px solid $color-cadet-blue;
-      width: 100%;
-    }
-  }
-
-  &__item {
-    word-wrap: normal;
-    &.image {
-      grid-area: image;
-      display: flex;
-      align-items: center;
-      position: relative;
-
-      .ribbon {
-        position: absolute;
-        scale: 0.4;
-        left: 20px;
-        top: -25px;
-      }
-
-      img {
-        width: 43px;
-        height: 68px;
-        object-fit: cover;
-
-        &.greys {
-          -webkit-filter: grayscale(100%);
-          filter: grayscale(100%);
-        }
-      }
-    }
-
-    &.id {
-      grid-area: id;
-    }
-
-    &.name {
-      grid-area: name;
-    }
-
-    &.gender {
-      grid-area: gender;
-      display: flex;
-      align-items: center;
-
-      .icon {
-        width: 16px;
-        height: 16px;
-        margin-right: 8px;
-      }
-    }
-
-    &.species {
-      grid-area: species;
-    }
-
-    &.last-episode {
-      grid-area: last-episode;
-    }
-
-    &.favorites {
-      grid-area: favorites;
-    }
-
-    .star {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border: 2px solid $color-java;
-      width: 40px;
-      height: 40px;
-      padding: 8px;
-      border-radius: 5px;
-      box-sizing: border-box;
-
-      &.favorite {
-        background-color: $color-java;
-
-        img {
-          filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(150deg)
-            brightness(106%) contrast(103%);
-        }
-      }
-    }
-  }
 
   &__no-results {
     text-align: center;
@@ -108,11 +15,7 @@
       grid-template-columns: repeat(7, 1fr);
       justify-content: space-between;
     }
-    &__row {
-      grid-template-columns: repeat(7, 1fr);
-      grid-template-areas: "image id name gender species last-episode favorites";
-      align-items: center;
-    }
+
     &__container {
       &--dark {
         background: $color-catskill-white;

@@ -1,15 +1,9 @@
 <template>
-  <div
-    class="container-horizontal padding-horizontal py-4"
-    v-if="
-      !charactersStore.onlyFavorites &&
-      charactersStore.searchCategory.toLowerCase() === 'name'
-    "
-  >
+  <div class="container-horizontal padding-horizontal py-4">
     <vue-awesome-paginate
-      :total-items="charactersStore.charactersNum"
+      :total-items="charactersNum"
       :items-per-page="20"
-      v-model="charactersStore.searchPage"
+      v-model="searchPage"
     >
       <template #prev-button>
         <div class="arrow-left"></div>
@@ -24,8 +18,11 @@
 
 <script setup lang="ts">
 import { useCharactersStore } from "@/stores/charactersStore";
+import { storeToRefs } from "pinia";
 
 const charactersStore = useCharactersStore();
+
+const { charactersNum, searchPage } = storeToRefs(charactersStore);
 
 charactersStore.updateCharactersNum();
 </script>
