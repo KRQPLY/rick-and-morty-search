@@ -1,0 +1,41 @@
+// Extra Small devices
+@mixin media-xs {
+  @media screen and (min-width: #{$breakpoint-xs}) {
+    @content;
+  }
+}
+
+// Small devices
+@mixin media-sm {
+  @media screen and (min-width: #{$breakpoint-sm}) {
+    @content;
+  }
+}
+
+// Medium devices
+@mixin media-md {
+  @media screen and (min-width: #{$breakpoint-md}) {
+    @content;
+  }
+}
+
+// Large devices
+@mixin media-lg {
+  @media screen and (min-width: #{$breakpoint-lg}) {
+    @content;
+  }
+}
+
+// Extra large devices
+@mixin media-xl {
+  @media screen and (min-width: #{$breakpoint-xl}) {
+    @content;
+  }
+}
+
+// High Definition devices
+@mixin media-hd {
+  @media screen and (min-width: #{$breakpoint-hd}) {
+    @content;
+  }
+}

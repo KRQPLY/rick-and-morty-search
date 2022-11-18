@@ -1,0 +1,14 @@
+.tab-headers {
+  &__container {
+    display: flex;
+    gap: 80px;
+  }
+  &__header {
+    cursor: pointer;
+
+    &.active {
+      color: $color-java;
+      border-bottom: 2px solid $color-java;
+    }
+  }
+}

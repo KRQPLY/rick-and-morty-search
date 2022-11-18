@@ -1,0 +1,28 @@
+.paginate-buttons,
+.back-button,
+.next-button {
+  width: 40px;
+  height: 40px;
+  margin-inline: 5px;
+  cursor: pointer;
+  border: 1px solid $color-cadet-blue;
+  background-color: transparent;
+  border-radius: 5px;
+
+  &:active {
+    border: 1px solid $color-black;
+  }
+}
+
+.back-button,
+.next-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.active-page {
+  background-color: $color-java;
+  border: 1px solid $color-java;
+  color: $color-white;
+}

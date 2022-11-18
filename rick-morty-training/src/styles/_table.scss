@@ -1,0 +1,25 @@
+.table {
+  &__head {
+    display: none;
+  }
+
+  &__no-results {
+    text-align: center;
+  }
+}
+
+@include media-sm {
+  .table {
+    &__head {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      justify-content: space-between;
+    }
+
+    &__container {
+      &--dark {
+        background: $color-catskill-white;
+      }
+    }
+  }
+}
