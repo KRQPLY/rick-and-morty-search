@@ -1,6 +1,6 @@
 # rick-morty-training
 
-<a href="https://krqply.github.io/rick-and-morty-search/">DEMO HERE</a>
+<a href="https://krqply.github.io/rick-and-morty-search/" target="_blank">DEMO HERE</a>
 
 ## Recommended IDE Setup
 
