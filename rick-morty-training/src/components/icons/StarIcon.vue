@@ -1,5 +1,11 @@
 <template>
-  <img src="@/assets/star-svg.svg" alt="Star" class="icon-color-java" />
+  <img
+    src="@/assets/star-svg.svg"
+    alt="Star"
+    class="star-icon icon-color-java"
+  />
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+@import "@/styles/icons/star-icon";
+</style>

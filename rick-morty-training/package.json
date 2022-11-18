@@ -4,9 +4,10 @@
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check build-only",
-    "preview": "vite preview",
+    "preview": "vite preview --port 8080",
     "build-only": "vite build",
-    "type-check": "vue-tsc --noEmit"
+    "type-check": "vue-tsc --noEmit",
+    "deploy": "sh deploy.sh"
   },
   "dependencies": {
     "@vueuse/core": "^9.4.0",
