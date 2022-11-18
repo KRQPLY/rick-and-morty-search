@@ -1,6 +1,6 @@
 # rick-morty-training
 
-This template should help get you started developing with Vue 3 in Vite.
+<a href="https://krqply.github.io/rick-and-morty-search/">DEMO HERE</a>
 
 ## Recommended IDE Setup
 
