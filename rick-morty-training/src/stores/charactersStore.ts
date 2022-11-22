@@ -67,6 +67,7 @@ export const useCharactersStore = defineStore("counter", () => {
       isPaginationActive.value = true;
     } else {
       setCharacters([]);
+      isPaginationActive.value = false;
     }
   };
   const updateCharactersByIdentifier = async (endpoint: string) => {
@@ -75,19 +76,19 @@ export const useCharactersStore = defineStore("counter", () => {
       let data = await getData(endpoint);
       if (data) {
         setCharacters([data]);
-        isPaginationActive.value = false;
       } else {
         setCharacters([]);
       }
+      isPaginationActive.value = false;
     }
   };
   const updateCharactersByEpisode = async (endpoint: string) => {
     if (searchValue.value) {
       let episodeEndpoint = `https://rickandmortyapi.com/api/episode/?episode=${searchValue.value}`;
-      let episodeData = (await getData(episodeEndpoint)).results;
+      let episodeData = await getData(episodeEndpoint);
       if (episodeData) {
         let charactersIds: Set<string> = new Set();
-        episodeData.forEach((episode: { characters: string[] }) => {
+        episodeData.results.forEach((episode: { characters: string[] }) => {
           episode.characters.forEach((character) => {
             charactersIds.add(
               character.replace(
@@ -101,12 +102,12 @@ export const useCharactersStore = defineStore("counter", () => {
         let data = await getData(endpoint);
         if (data) {
           setCharacters(data);
-          isPaginationActive.value = false;
         }
       } else {
         setCharacters([]);
       }
     }
+    isPaginationActive.value = false;
   };
   const updateCharactersByFavorites = async (endpoint: string) => {
     if (favoriteIds.value.length) {
@@ -121,13 +122,13 @@ export const useCharactersStore = defineStore("counter", () => {
           });
         }
         setCharacters(data);
-        isPaginationActive.value = false;
       } else {
         setCharacters([]);
       }
     } else {
       setCharacters([]);
     }
+    isPaginationActive.value = false;
   };
   const updateCharacters = async () => {
     let endpoint = "https://rickandmortyapi.com/api/character";
