@@ -71,6 +71,12 @@
     }
 
     .star {
+      padding: 0;
+      text-align: left;
+      background: none;
+      border: none;
+      font: inherit;
+      cursor: pointer;
       display: flex;
       justify-content: center;
       align-items: center;

@@ -3,20 +3,20 @@
     <div
       class="tab-headers__container container-horizontal padding-horizontal py-4"
     >
-      <div
+      <button
         class="tab-headers__header"
         :class="{ 'active': !isOnlyFavorites }"
         @click="showAllCharacters"
       >
         All Characters
-      </div>
-      <div
+      </button>
+      <button
         class="tab-headers__header"
         :class="{ 'active': isOnlyFavorites }"
         @click="showFavoriteCharacters"
       >
         Favorites
-      </div>
+      </button>
     </div>
   </div>
 </template>

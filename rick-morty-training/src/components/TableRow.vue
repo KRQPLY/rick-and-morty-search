@@ -23,13 +23,13 @@
         {{ character.lastEpisode }}
       </div>
       <div class="row__item favorites">
-        <div
+        <button
           class="star"
           :class="{ favorite: character.isFavorite }"
           @click="toggleFavorite(character.id)"
         >
           <StarIcon />
-        </div>
+        </button>
       </div>
     </div>
   </div>

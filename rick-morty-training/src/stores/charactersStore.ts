@@ -4,6 +4,9 @@ import getData from "@/composables/getData";
 import getLocalStorage from "@/utils/getLocalStorage";
 import updateLocalStorage from "@/utils/updateLocalStorage";
 import type Character from "@/types/Character";
+import type Episode from "@/types/Episode";
+import type Characters from "@/types/Characters";
+import type Episodes from "@/types/Episodes";
 
 export const useCharactersStore = defineStore("counter", () => {
   const searchCategories = ref([
@@ -54,13 +57,17 @@ export const useCharactersStore = defineStore("counter", () => {
     characters.value = data;
     data.forEach(async (result: Character, index: number) => {
       const lastEpisodeURL = result.episode[result.episode.length - 1];
-      const lastEpisode = await getData(lastEpisodeURL);
-      characters.value[index].lastEpisode = lastEpisode.episode;
+      const lastEpisode = (await getData(lastEpisodeURL)) as
+        | Episode
+        | undefined;
+      if (lastEpisode) {
+        characters.value[index].lastEpisode = lastEpisode.episode;
+      }
     });
   };
   const updateCharactersByName = async (endpoint: string) => {
     endpoint = `${endpoint}?page=${searchPage.value}&name=${searchValue.value}`;
-    let data = await getData(endpoint);
+    let data = (await getData(endpoint)) as Characters | undefined;
     if (data) {
       setCharacters(data.results);
       updateCharactersNum(endpoint);
@@ -73,7 +80,7 @@ export const useCharactersStore = defineStore("counter", () => {
   const updateCharactersByIdentifier = async (endpoint: string) => {
     if (Number(searchValue.value)) {
       endpoint = `${endpoint}/${searchValue.value}`;
-      let data = await getData(endpoint);
+      let data = (await getData(endpoint)) as Character | undefined;
       if (data) {
         setCharacters([data]);
       } else {
@@ -85,7 +92,9 @@ export const useCharactersStore = defineStore("counter", () => {
   const updateCharactersByEpisode = async (endpoint: string) => {
     if (searchValue.value) {
       let episodeEndpoint = `https://rickandmortyapi.com/api/episode/?episode=${searchValue.value}`;
-      let episodeData = await getData(episodeEndpoint);
+      let episodeData = (await getData(episodeEndpoint)) as
+        | Episodes
+        | undefined;
       if (episodeData) {
         let charactersIds: Set<string> = new Set();
         episodeData.results.forEach((episode: { characters: string[] }) => {
@@ -98,8 +107,8 @@ export const useCharactersStore = defineStore("counter", () => {
             );
           });
         });
-        endpoint = `${endpoint}/${[...charactersIds]}`;
-        let data = await getData(endpoint);
+        endpoint = `${endpoint}/${JSON.stringify([...charactersIds])}`;
+        let data = (await getData(endpoint)) as Character[] | undefined;
         if (data) {
           setCharacters(data);
         }
@@ -112,7 +121,7 @@ export const useCharactersStore = defineStore("counter", () => {
   const updateCharactersByFavorites = async (endpoint: string) => {
     if (favoriteIds.value.length) {
       endpoint = `${endpoint}/${JSON.stringify(favoriteIds.value)}`;
-      let data = await getData(endpoint);
+      let data = (await getData(endpoint)) as Character[] | undefined;
       if (data) {
         if (searchValue.value) {
           data = data.filter((item: Character) => {
@@ -148,7 +157,7 @@ export const useCharactersStore = defineStore("counter", () => {
   const updateCharactersNum = async (
     endpoint: string = "https://rickandmortyapi.com/api/character"
   ) => {
-    let data = await getData(endpoint);
+    let data = (await getData(endpoint)) as Characters | undefined;
     if (data) {
       charactersNum.value = data.info.count;
     }

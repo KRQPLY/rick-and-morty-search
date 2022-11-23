@@ -1,6 +1,12 @@
 import axios from "axios";
+import type Character from "@/types/Character";
+import type Episode from "@/types/Episode";
+import type Characters from "@/types/Characters";
+import type Episodes from "@/types/Episodes";
 
-const getData = async (endpoint: string) => {
+const getData = async (
+  endpoint: string
+): Promise<Character | Episode | Characters | Episodes | undefined> => {
   try {
     let response = await axios.get(endpoint);
 

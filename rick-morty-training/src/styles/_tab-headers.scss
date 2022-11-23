@@ -4,6 +4,11 @@
     gap: 80px;
   }
   &__header {
+    padding: 0;
+    text-align: left;
+    background: none;
+    border: none;
+    font: inherit;
     cursor: pointer;
 
     &.active {

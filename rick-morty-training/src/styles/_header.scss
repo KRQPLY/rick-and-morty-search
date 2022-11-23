@@ -39,6 +39,11 @@
         }
 
         &__current-option {
+          width: 100%;
+          background: none;
+          border: none;
+          font: inherit;
+          cursor: pointer;
           border-left: 1px solid $color-cadet-blue;
           border-right: 1px solid $color-cadet-blue;
           border-top-right-radius: 12px;
@@ -57,6 +62,11 @@
         }
 
         &__item {
+          text-align: left;
+          background: none;
+          border: none;
+          font: inherit;
+          cursor: pointer;
           background-color: $color-white;
           border: 1px solid $color-cadet-blue;
           border-top: 0;
@@ -95,10 +105,15 @@
         }
 
         &__button {
+          display: flex;
+          padding: 0;
+          text-align: left;
+          background: none;
+          border: none;
+          font: inherit;
           cursor: pointer;
           position: absolute;
           right: 20px;
-          width: 30px;
         }
       }
     }

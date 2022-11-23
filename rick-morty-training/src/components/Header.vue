@@ -8,19 +8,19 @@
         <div class="list">
           <div class="list__label px-5 py-4">Search by</div>
           <div class="list__select" :class="{ disabled: isOnlyFavorites }">
-            <div class="list__current-option px-5 py-4" @click="toggleList">
+            <button class="list__current-option px-5 py-4" @click="toggleList">
               {{ searchCategory }}
               <div class="arrow-down"></div>
-            </div>
+            </button>
             <div class="list__container" v-if="isListVisible">
-              <div
+              <button
                 class="list__item px-5 py-4"
                 v-for="(category, index) in searchCategories"
                 @click="changeCategory(category)"
-                :key="index"
+                :key="`list-item-${index}`"
               >
                 {{ category }}
-              </div>
+              </button>
             </div>
           </div>
         </div>
@@ -31,7 +31,9 @@
             class="search-field__input px-5 py-4"
             v-model="searchValue"
           />
-          <SearchIcon class="search-field__button" @click="searchCharacters" />
+          <button class="search-field__button" @click="searchCharacters">
+            <SearchIcon />
+          </button>
         </div>
       </div>
     </div>
