@@ -17,5 +17,3 @@ const charactersStore = useCharactersStore();
 
 const { isOnlyFavorites, isPaginationActive } = storeToRefs(charactersStore);
 </script>
-
-<script scoped lang="scss"></script>

@@ -3,12 +3,14 @@ import { defineStore } from "pinia";
 import getData from "@/composables/getData";
 import getLocalStorage from "@/utils/getLocalStorage";
 import updateLocalStorage from "@/utils/updateLocalStorage";
+import { useRouter } from "vue-router";
 import type Character from "@/types/Character";
 import type Episode from "@/types/Episode";
 import type Characters from "@/types/Characters";
 import type Episodes from "@/types/Episodes";
 
 export const useCharactersStore = defineStore("counter", () => {
+  const router = useRouter();
   const searchCategories = ref([
     "Name",
     "Identifier",
@@ -17,7 +19,7 @@ export const useCharactersStore = defineStore("counter", () => {
   ]);
   const searchValue = ref("");
   const searchCategory = ref(searchCategories.value[0]);
-  const searchPage = ref(1);
+  const searchPage = ref(Number(router.currentRoute.value.query.page) || 1);
   const charactersNum = ref(1);
   const characters = ref<Character[]>([]);
   const favoriteIds = ref<number[]>([]);
@@ -162,8 +164,10 @@ export const useCharactersStore = defineStore("counter", () => {
       charactersNum.value = data.info.count;
     }
   };
+
   watch(searchPage, () => {
     updateCharacters();
+    router.push({ name: "home", query: { page: searchPage.value } });
   });
 
   return {
