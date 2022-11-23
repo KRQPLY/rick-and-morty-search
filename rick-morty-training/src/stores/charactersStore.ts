@@ -35,7 +35,7 @@ export const useCharactersStore = defineStore("counter", () => {
     isOnlyFavorites.value = favorites;
   };
   const setSearchPage = (page: number) => {
-    searchPage.value = page;
+    router.push({ name: "home", query: { page: page } });
   };
   const addToFavorites = (id: number) => {
     favoriteIds.value.push(id);
@@ -164,10 +164,9 @@ export const useCharactersStore = defineStore("counter", () => {
       charactersNum.value = data.info.count;
     }
   };
-
-  watch(searchPage, () => {
+  watch(router.currentRoute, () => {
+    searchPage.value = Number(router.currentRoute.value.query.page);
     updateCharacters();
-    router.push({ name: "home", query: { page: searchPage.value } });
   });
 
   return {

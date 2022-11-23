@@ -4,6 +4,7 @@
       :total-items="charactersNum"
       :items-per-page="20"
       v-model="searchPage"
+      :on-click="handlePageChange"
     >
       <template #prev-button>
         <div class="arrow-left"></div>
@@ -25,6 +26,10 @@ const charactersStore = useCharactersStore();
 const { charactersNum, searchPage } = storeToRefs(charactersStore);
 
 charactersStore.updateCharactersNum();
+
+const handlePageChange = () => {
+  charactersStore.setSearchPage(searchPage.value);
+};
 </script>
 
 <style lang="scss">
