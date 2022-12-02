@@ -110,9 +110,12 @@ export const useCharactersStore = defineStore("counter", () => {
         let data = (await getData(endpoint)) as Character | undefined;
         if (data) {
           setCharacters([data]);
-          savedCharacters.value[0]
-            ? savedCharacters.value[0].push(data)
-            : (savedCharacters.value[0] = [data]);
+          if (savedCharacters.value[0]) {
+            savedCharacters.value[0].push(data);
+            savedCharacters.value[0] = [...new Set(savedCharacters.value[0])];
+          } else {
+            savedCharacters.value[0] = [data];
+          }
         } else {
           setCharacters([]);
         }
@@ -167,9 +170,13 @@ export const useCharactersStore = defineStore("counter", () => {
         let dataToSave = (await getData(endpoint)) as Character[] | undefined;
         if (dataToSave) {
           data = data.concat(dataToSave);
-          savedCharacters.value[0]
-            ? savedCharacters.value[0].concat(dataToSave)
-            : (savedCharacters.value[0] = dataToSave);
+          if (savedCharacters.value[0]) {
+            savedCharacters.value[0] =
+              savedCharacters.value[0].concat(dataToSave);
+            savedCharacters.value[0] = [...new Set(savedCharacters.value[0])];
+          } else {
+            savedCharacters.value[0] = dataToSave;
+          }
         }
       }
       if (data.length) {
