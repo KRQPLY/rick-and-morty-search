@@ -22,6 +22,9 @@ export const useCharactersStore = defineStore("counter", () => {
   const searchPage = ref(Number(router.currentRoute.value.query.page) || 1);
   const charactersNum = ref(1);
   const characters = ref<Character[]>([]);
+  const savedCharacters = ref<{ [key: number]: Character[] }>([]);
+  const savedEpisodes = ref<{ [key: string]: string }>({});
+  const allCharactersNum = ref(1);
   const favoriteIds = ref<number[]>([]);
   const isOnlyFavorites = ref(false);
   const isPaginationActive = ref(true);
@@ -55,38 +58,64 @@ export const useCharactersStore = defineStore("counter", () => {
       favoriteIds.value = JSON.parse(storage);
     }
   };
-  const setCharacters = (data: Character[]) => {
+  const setCharacters = async (data: Character[]) => {
     characters.value = data;
-    data.forEach(async (result: Character, index: number) => {
+    for (const [index, result] of data.entries()) {
       const lastEpisodeURL = result.episode[result.episode.length - 1];
-      const lastEpisode = (await getData(lastEpisodeURL)) as
-        | Episode
-        | undefined;
-      if (lastEpisode) {
-        characters.value[index].lastEpisode = lastEpisode.episode;
+      if (savedEpisodes.value[lastEpisodeURL]) {
+        characters.value[index].lastEpisode =
+          savedEpisodes.value[lastEpisodeURL];
+      } else {
+        const lastEpisode = (await getData(lastEpisodeURL)) as
+          | Episode
+          | undefined;
+        if (lastEpisode) {
+          characters.value[index].lastEpisode = lastEpisode.episode;
+          savedEpisodes.value[lastEpisodeURL] = lastEpisode.episode;
+        }
       }
-    });
+    }
   };
   const updateCharactersByName = async (endpoint: string) => {
-    endpoint = `${endpoint}?page=${searchPage.value}&name=${searchValue.value}`;
-    let data = (await getData(endpoint)) as Characters | undefined;
-    if (data) {
-      setCharacters(data.results);
-      updateCharactersNum(endpoint);
+    if (!searchValue.value && savedCharacters.value[searchPage.value]) {
+      setCharacters(savedCharacters.value[searchPage.value]);
       isPaginationActive.value = true;
+      charactersNum.value = allCharactersNum.value;
     } else {
-      setCharacters([]);
-      isPaginationActive.value = false;
+      endpoint = `${endpoint}?page=${searchPage.value}&name=${searchValue.value}`;
+      let data = (await getData(endpoint)) as Characters | undefined;
+      if (data) {
+        setCharacters(data.results);
+        charactersNum.value = data.info.count;
+        isPaginationActive.value = true;
+        if (!searchValue.value) {
+          savedCharacters.value[searchPage.value] = data.results;
+          allCharactersNum.value = data.info.count;
+        }
+      } else {
+        setCharacters([]);
+        isPaginationActive.value = false;
+      }
     }
   };
   const updateCharactersByIdentifier = async (endpoint: string) => {
-    if (Number(searchValue.value)) {
-      endpoint = `${endpoint}/${searchValue.value}`;
-      let data = (await getData(endpoint)) as Character | undefined;
-      if (data) {
-        setCharacters([data]);
+    const id = Number(searchValue.value);
+    if (id) {
+      const allSavedCharacters = Object.values(savedCharacters.value).flat();
+      let character = allSavedCharacters.find((e) => e.id === id);
+      if (character) {
+        setCharacters([character]);
       } else {
-        setCharacters([]);
+        endpoint = `${endpoint}/${searchValue.value}`;
+        let data = (await getData(endpoint)) as Character | undefined;
+        if (data) {
+          setCharacters([data]);
+          savedCharacters.value[0]
+            ? savedCharacters.value[0].push(data)
+            : (savedCharacters.value[0] = [data]);
+        } else {
+          setCharacters([]);
+        }
       }
       isPaginationActive.value = false;
     }
@@ -122,16 +151,34 @@ export const useCharactersStore = defineStore("counter", () => {
   };
   const updateCharactersByFavorites = async (endpoint: string) => {
     if (favoriteIds.value.length) {
-      endpoint = `${endpoint}/${JSON.stringify(favoriteIds.value)}`;
-      let data = (await getData(endpoint)) as Character[] | undefined;
-      if (data) {
-        if (searchValue.value) {
-          data = data.filter((item: Character) => {
-            return item.name
-              .toLowerCase()
-              .includes(searchValue.value.toLowerCase());
-          });
+      let data: Character[] | undefined = [];
+      let idsNotSaved: number[] = [];
+      const allSavedCharacters = Object.values(savedCharacters.value).flat();
+      favoriteIds.value.forEach(async (id) => {
+        let character = allSavedCharacters.find((e) => e.id === id);
+        if (character) {
+          data?.push(character);
+        } else {
+          idsNotSaved.push(id);
         }
+      });
+      if (idsNotSaved.length) {
+        endpoint = `${endpoint}/${JSON.stringify(idsNotSaved)}`;
+        let dataToSave = (await getData(endpoint)) as Character[] | undefined;
+        if (dataToSave) {
+          data = data.concat(dataToSave);
+          savedCharacters.value[0]
+            ? savedCharacters.value[0].concat(dataToSave)
+            : (savedCharacters.value[0] = dataToSave);
+        }
+      }
+      if (data.length) {
+        data = data.filter((item: Character) => {
+          return item.name
+            .toLowerCase()
+            .includes(searchValue.value.toLowerCase());
+        });
+        data = data.sort((a, b) => a.id - b.id);
         setCharacters(data);
       } else {
         setCharacters([]);
@@ -154,14 +201,6 @@ export const useCharactersStore = defineStore("counter", () => {
       } else if (categoryName === "identifier") {
         updateCharactersByIdentifier(endpoint);
       }
-    }
-  };
-  const updateCharactersNum = async (
-    endpoint: string = "https://rickandmortyapi.com/api/character"
-  ) => {
-    let data = (await getData(endpoint)) as Characters | undefined;
-    if (data) {
-      charactersNum.value = data.info.count;
     }
   };
   watch(router.currentRoute, () => {
@@ -187,6 +226,5 @@ export const useCharactersStore = defineStore("counter", () => {
     isIdInFavorites,
     updateFavoriteIds,
     updateCharacters,
-    updateCharactersNum,
   };
 });

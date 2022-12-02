@@ -38,7 +38,7 @@ import TableRow from "./TableRow.vue";
 
 const charactersStore = useCharactersStore();
 
-const { characters } = storeToRefs(charactersStore);
+const { characters, isOnlyFavorites } = storeToRefs(charactersStore);
 
 charactersStore.updateCharacters();
 charactersStore.updateFavoriteIds();
@@ -47,6 +47,7 @@ const toggleFavorite = (id: number) => {
   if (charactersStore.isIdInFavorites(id))
     charactersStore.deleteFromFavorites(id);
   else charactersStore.addToFavorites(id);
+  if(isOnlyFavorites.value)
   charactersStore.updateCharacters();
 };
 </script>

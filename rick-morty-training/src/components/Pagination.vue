@@ -25,8 +25,6 @@ const charactersStore = useCharactersStore();
 
 const { charactersNum, searchPage } = storeToRefs(charactersStore);
 
-charactersStore.updateCharactersNum();
-
 const handlePageChange = () => {
   charactersStore.setSearchPage(searchPage.value);
 };
