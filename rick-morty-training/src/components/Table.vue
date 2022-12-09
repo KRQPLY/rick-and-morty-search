@@ -22,12 +22,8 @@
         @toggle-favorite="toggleFavorite"
       />
     </div>
-    <div
-      v-else
-      class="table__no-results container-horizontal padding-horizontal py-4"
-    >
-      No results
-    </div>
+    <TableRowSkeleton v-else-if="isDataLoading" v-for="n in 20" :key="n" />
+    <div v-else class="table__no-results container-horizontal padding-horizontal py-4">No results</div>
   </div>
 </template>
 
@@ -35,20 +31,19 @@
 import { useCharactersStore } from "@/stores/charactersStore";
 import { storeToRefs } from "pinia";
 import TableRow from "./TableRow.vue";
+import TableRowSkeleton from "./TableRowSkeleton.vue";
 
 const charactersStore = useCharactersStore();
 
-const { characters, isOnlyFavorites } = storeToRefs(charactersStore);
+const { characters, isOnlyFavorites, isDataLoading } = storeToRefs(charactersStore);
 
 charactersStore.updateCharacters();
 charactersStore.updateFavoriteIds();
 
 const toggleFavorite = (id: number) => {
-  if (charactersStore.isIdInFavorites(id))
-    charactersStore.deleteFromFavorites(id);
+  if (charactersStore.isIdInFavorites(id)) charactersStore.deleteFromFavorites(id);
   else charactersStore.addToFavorites(id);
-  if(isOnlyFavorites.value)
-  charactersStore.updateCharacters();
+  if (isOnlyFavorites.value) charactersStore.updateCharacters();
 };
 </script>
 
