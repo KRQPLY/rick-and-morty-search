@@ -1,24 +1,52 @@
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { defineStore } from "pinia";
 import useGetData from "@/composables/useGetData";
 import getLocalStorage from "@/utils/getLocalStorage";
 import updateLocalStorage from "@/utils/updateLocalStorage";
 import { useRouter } from "vue-router";
 import type Character from "@/types/Character";
+import type Query from "@/types/Query";
 
 export const useCharactersStore = defineStore("counter", () => {
   const { getEpisode, getIdsInEpisodes, getCharactersByName, getCharactersByIdentifiers } = useGetData();
   const router = useRouter();
   const searchCategories = ref(["Name", "Identifier", "Episode", "SomeLongGermanWord"]);
-  const searchValue = ref("");
-  const searchCategory = ref(searchCategories.value[0]);
+  const searchValue = ref(typeof router.currentRoute.value.query.value === "string" ? router.currentRoute.value.query.value : "");
+  const searchCategory = ref(
+    typeof router.currentRoute.value.query.category !== "string" ||
+      !searchCategories.value.includes(router.currentRoute.value.query.category)
+      ? searchCategories.value[0]
+      : router.currentRoute.value.query.category
+  );
   const searchPage = ref(Number(router.currentRoute.value.query.page) || 1);
   const charactersNum = ref(1);
   const characters = ref<Character[]>([]);
   const favoriteIds = ref<number[]>([]);
-  const isOnlyFavorites = ref(false);
+  const isOnlyFavorites = ref(
+    typeof router.currentRoute.value.query.favorites === "string" &&
+      router.currentRoute.value.query.favorites.toLowerCase() === "true"
+      ? true
+      : false
+  );
   const isPaginationActive = ref(true);
   const isDataLoading = ref(true);
+
+  const updateQuery = () => {
+    let query: Query = {};
+    if (searchCategory.value) {
+      query.category = searchCategory.value;
+    }
+    if (searchPage.value && searchCategory.value.toLowerCase() === "name") {
+      query.page = searchPage.value;
+    }
+    if (isOnlyFavorites.value) {
+      query = { favorites: "true" };
+    }
+    if (searchValue.value) {
+      query.value = searchValue.value;
+    }
+    router.push({ name: "home", query: { ...query } });
+  };
 
   const setSearchValue = (value: string) => {
     searchValue.value = value;
@@ -33,7 +61,7 @@ export const useCharactersStore = defineStore("counter", () => {
   };
 
   const setSearchPage = (page: number) => {
-    router.push({ name: "home", query: { page: page } });
+    searchPage.value = page;
   };
 
   const addToFavorites = (id: number) => {
@@ -122,11 +150,6 @@ export const useCharactersStore = defineStore("counter", () => {
     isDataLoading.value = false;
   };
 
-  watch(router.currentRoute, () => {
-    searchPage.value = Number(router.currentRoute.value.query.page);
-    updateCharacters();
-  });
-
   return {
     searchCategories,
     searchValue,
@@ -137,6 +160,7 @@ export const useCharactersStore = defineStore("counter", () => {
     isOnlyFavorites,
     isPaginationActive,
     isDataLoading,
+    updateQuery,
     setSearchValue,
     setSearchCategory,
     setOnlyFavorites,

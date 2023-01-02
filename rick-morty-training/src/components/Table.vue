@@ -38,7 +38,6 @@ const charactersStore = useCharactersStore();
 const { characters, isOnlyFavorites, isDataLoading } = storeToRefs(charactersStore);
 
 charactersStore.updateCharacters();
-charactersStore.updateFavoriteIds();
 
 const toggleFavorite = (id: number) => {
   if (charactersStore.isIdInFavorites(id)) charactersStore.deleteFromFavorites(id);

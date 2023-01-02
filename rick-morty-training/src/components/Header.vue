@@ -1,9 +1,7 @@
 <template>
   <header class="header py-4">
     <div class="container container-horizontal padding-horizontal">
-      <RouterLink :to="{ name: 'home' }"
-        ><RickAndMortyLogo class="header__logo"
-      /></RouterLink>
+      <RouterLink :to="{ name: 'home' }"><RickAndMortyLogo class="header__logo" /></RouterLink>
       <div class="search-bar">
         <div class="list">
           <div class="list__label px-5 py-4">Search by</div>
@@ -25,12 +23,7 @@
           </div>
         </div>
         <div class="search-field">
-          <input
-            type="text"
-            placeholder="..."
-            class="search-field__input px-5 py-4"
-            v-model="searchValue"
-          />
+          <input type="text" placeholder="..." class="search-field__input px-5 py-4" v-model="searchValue" />
           <button class="search-field__button" @click="searchCharacters">
             <SearchIcon />
           </button>
@@ -51,8 +44,7 @@ import { storeToRefs } from "pinia";
 const charactersStore = useCharactersStore();
 
 const isListVisible = ref(false);
-const { isOnlyFavorites, searchCategory, searchCategories, searchValue } =
-  storeToRefs(charactersStore);
+const { isOnlyFavorites, searchCategory, searchCategories, searchValue } = storeToRefs(charactersStore);
 
 const toggleList = () => {
   if (!isOnlyFavorites.value) {
@@ -67,6 +59,7 @@ const changeCategory = (category: string) => {
 
 const searchCharacters = () => {
   charactersStore.setSearchPage(1);
+  charactersStore.updateQuery();
   charactersStore.updateCharacters();
 };
 

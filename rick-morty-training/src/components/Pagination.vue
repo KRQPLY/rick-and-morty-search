@@ -1,11 +1,6 @@
 <template>
   <div class="container-horizontal padding-horizontal py-4">
-    <vue-awesome-paginate
-      :total-items="charactersNum"
-      :items-per-page="20"
-      v-model="searchPage"
-      :on-click="handlePageChange"
-    >
+    <vue-awesome-paginate :total-items="charactersNum" :items-per-page="20" v-model="searchPage" :on-click="handlePageChange">
       <template #prev-button>
         <div class="arrow-left"></div>
       </template>
@@ -26,7 +21,8 @@ const charactersStore = useCharactersStore();
 const { charactersNum, searchPage } = storeToRefs(charactersStore);
 
 const handlePageChange = () => {
-  charactersStore.setSearchPage(searchPage.value);
+  charactersStore.updateQuery();
+  charactersStore.updateCharacters();
 };
 </script>
 

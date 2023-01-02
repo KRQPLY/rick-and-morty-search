@@ -16,4 +16,6 @@ import { storeToRefs } from "pinia";
 const charactersStore = useCharactersStore();
 
 const { isOnlyFavorites, isPaginationActive } = storeToRefs(charactersStore);
+
+charactersStore.updateQuery();
 </script>
