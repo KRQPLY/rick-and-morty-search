@@ -36,7 +36,7 @@ export const useCharactersStore = defineStore("counter", () => {
     if (searchCategory.value) {
       query.category = searchCategory.value;
     }
-    if (searchPage.value && searchCategory.value.toLowerCase() === "name") {
+    if (searchPage.value && searchCategory.value.toLowerCase() !== "identifier") {
       query.page = searchPage.value;
     }
     if (isOnlyFavorites.value) {
@@ -100,10 +100,10 @@ export const useCharactersStore = defineStore("counter", () => {
 
     setCharacters(results);
     charactersNum.value = count;
-    isPaginationActive.value = true;
     if (!results.length) {
       isPaginationActive.value = false;
     }
+    isPaginationActive.value = true;
   };
 
   const updateCharactersByIdentifier = async () => {
@@ -114,11 +114,18 @@ export const useCharactersStore = defineStore("counter", () => {
   };
 
   const updateCharactersByEpisode = async () => {
+    const resultsPerPage = 20;
     const idsInEpisodes = await getIdsInEpisodes(searchValue.value);
     const results = await getCharactersByIdentifiers([...idsInEpisodes]);
+    const resultsOnOnePage = [...results].splice((searchPage.value - 1) * resultsPerPage, resultsPerPage);
 
-    setCharacters(results);
-    isPaginationActive.value = false;
+    charactersNum.value = results.length;
+
+    setCharacters(resultsOnOnePage);
+    if (!results.length) {
+      isPaginationActive.value = false;
+    }
+    isPaginationActive.value = true;
   };
 
   const updateCharactersByFavorites = async () => {

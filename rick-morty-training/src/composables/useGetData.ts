@@ -44,10 +44,24 @@ const useGetData = () => {
 
     if (!cachedEpisodes[endpoint]) {
       const episodes = (await getData(endpoint)) as Episodes | undefined;
-      if (!episodes) {
+      let episodesResults = episodes?.results;
+      let nextUrl = episodes?.info.next;
+
+      while (nextUrl) {
+        const nextPageEpisodes = (await getData(nextUrl)) as Episodes | undefined;
+
+        if (!nextPageEpisodes) {
+          break;
+        }
+        episodesResults = episodesResults?.concat(nextPageEpisodes.results);
+        nextUrl = nextPageEpisodes.info.next;
+      }
+
+      if (!episodesResults) {
         return [];
       }
-      cachedEpisodes[endpoint] = episodes.results;
+
+      cachedEpisodes[endpoint] = episodesResults;
     }
     cachedEpisodes[endpoint].forEach((episode) => {
       episode.characters.forEach((character) => {
