@@ -36,7 +36,7 @@ export const useCharactersStore = defineStore("counter", () => {
     if (searchCategory.value) {
       query.category = searchCategory.value;
     }
-    if (searchPage.value && searchCategory.value.toLowerCase() !== "identifier") {
+    if (searchPage.value && (searchCategory.value.toLowerCase() !== "identifier" || !searchValue.value)) {
       query.page = searchPage.value;
     }
     if (isOnlyFavorites.value) {
@@ -107,6 +107,10 @@ export const useCharactersStore = defineStore("counter", () => {
   };
 
   const updateCharactersByIdentifier = async () => {
+    if (!searchValue.value) {
+      updateCharactersByName();
+      return;
+    }
     const results = await getCharactersByIdentifiers([Number(searchValue.value)]);
 
     setCharacters(results);
